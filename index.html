@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Heart 💖</title>
+
+<style>
+body {
+    margin: 0;
+    overflow: hidden;
+    background: radial-gradient(circle at center, #000 30%, #1a001a);
+    font-family: Arial, sans-serif;
+}
+
+.title {
+    position: absolute;
+    width: 100%;
+    top: 8%;
+    text-align: center;
+    font-size: 6vw;
+    color: #ff4da6;
+    animation: glow 2s infinite alternate;
+}
+
+@keyframes glow {
+    from { text-shadow: 0 0 10px #ff4da6; }
+    to { text-shadow: 0 0 40px #ff0066; }
+}
+
+canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+/* 🎵 Play button */
+.play-btn {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #ff4da6;
+    border: none;
+    padding: 12px 20px;
+    font-size: 18px;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="title">I LOVE YOU 💖</div>
+<canvas id="canvas"></canvas>
+
+<!-- 🎵 Play button fallback -->
+<button class="play-btn" id="playBtn" onclick="playMusic()">▶️ Play music</button>
+
+<!-- 🎵 Audio element -->
+<audio id="music" loop>
+  <source src="ehsaac.mp3" type="audio/mpeg">
+  Your browser does not support the audio element.
+</audio>
+
+<script>
+// Canvas setup
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener("resize", resize);
+
+// Heart shape function
+function heart(t) {
+    return {
+        x: 16 * Math.pow(Math.sin(t), 3),
+        y: -(13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t))
+    };
+}
+
+// Particles for heart
+let particles = [];
+for (let i = 0; i < 1500; i++) {
+    let t = Math.random() * Math.PI * 2;
+    let pos = heart(t);
+    particles.push({
+        baseX: pos.x,
+        baseY: pos.y,
+        size: Math.random() * 1.8
+    });
+}
+
+let time = 0;
+
+// Draw animation
+function draw() {
+    time += 0.04;
+    ctx.fillStyle = "rgba(0,0,0,0.2)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    let scale = 10 + Math.sin(time) * 2;
+    ctx.fillStyle = "#ff4da6";
+
+    particles.forEach(p => {
+        let x = p.baseX * scale;
+        let y = p.baseY * scale;
+        let px = canvas.width/2 + x;
+        let py = canvas.height/2 + y;
+        ctx.beginPath();
+        ctx.arc(px, py, p.size, 0, Math.PI * 2);
+        ctx.fill();
+    });
+
+    requestAnimationFrame(draw);
+}
+
+draw();
+
+// 🎵 Play music function
+function playMusic() {
+    const music = document.getElementById("music");
+    music.play();
+    // Hide the Play button after clicking
+    document.getElementById("playBtn").style.display = 'none';
+}
+
+// 🎵 Try autoplay on page load
+window.addEventListener('load', () => {
+    const music = document.getElementById("music");
+    const playPromise = music.play();
+    if (playPromise !== undefined) {
+        playPromise.then(() => {
+            // Autoplay succeeded, hide the Play button
+            document.getElementById("playBtn").style.display = 'none';
+        }).catch(() => {
+            // Autoplay blocked, show the Play button (already visible)
+        });
+    }
+});
+</script>
+
+</body>
+</html>
